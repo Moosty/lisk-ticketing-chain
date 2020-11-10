@@ -1,0 +1,26 @@
+{
+  "name": "lisk-ticketing-chain",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "author": "Moosty",
+  "license": "MIT",
+  "scripts": {
+    "start": "babel-node src/index.js"
+  },
+  "dependencies": {
+    "@moosty/lisk-sprinkler": "../lisk-sprinkler/",
+    "lisk-commander": "^5.0.0-alpha.1",
+    "lisk-core": "^3.0.0-beta.2.4",
+    "lisk-sdk": "^5.0.0-alpha.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.4",
+    "@babel/node": "^7.8.4",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/preset-env": "^7.8.4",
+    "node-fetch": "^2.6.1",
+    "nodemon": "^2.0.6",
+    "typescript": "^4.0.5"
+  }
+}
