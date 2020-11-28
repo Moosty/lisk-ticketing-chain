@@ -10,7 +10,7 @@ const eventSchema = {
       fieldNumber: 1,
       items: {
         type: "object",
-        required: ["id", "organizationId", "ownerAddress", "eventData", "ticketData", "resellData"],
+        required: ["id", "organizationId", "eventData", "ticketData", "resellData"],
         properties: {
           id: {
             dataType: "bytes",
@@ -20,13 +20,9 @@ const eventSchema = {
             dataType: "bytes",
             fieldNumber: 2,
           },
-          ownerAddress: {
-            dataType: "bytes",
-            fieldNumber: 3,
-          },
           eventData: {
             type: "object",
-            fieldNumber: 4,
+            fieldNumber: 3,
             required: ["title", "status", "location", "date", "duration"],
             properties: {
               title: {
@@ -35,39 +31,37 @@ const eventSchema = {
                 minLength: 10,
                 maxLength: 100,
               },
-              status: {
-                dataType: "string",
-                fieldNumber: 2,
-                minLength: 10,
-                maxLength: 30,
-              },
               location: {
                 dataType: "string",
-                fieldNumber: 3,
+                fieldNumber: 2,
                 minLength: 3,
                 maxLength: 50,
               },
               date: {
                 dataType: "uint64",
-                fieldNumber: 4,
+                fieldNumber: 3,
               },
               duration: {
                 dataType: "uint32",
-                fieldNumber: 5
+                fieldNumber: 4
               },
               site: {
                 dataType: "string",
-                fieldNumber: 6,
+                fieldNumber: 5,
                 minLength: 0,
                 maxLength: 200,
               },
               image: {
                 dataType: "string",
-                fieldNumber: 7,
+                fieldNumber: 6,
                 minLength: 0,
                 maxLength: 255,
               },
               category: {
+                dataType: "uint32",
+                fieldNumber: 7,
+              },
+              status: {
                 dataType: "uint32",
                 fieldNumber: 8,
               },
@@ -77,10 +71,10 @@ const eventSchema = {
             type: "array",
             minItems: 1,
             maxItems: 20,
-            fieldNumber: 5,
+            fieldNumber: 4,
             items: {
               type: "object",
-              required: ["startSellTimestamp", "id", "name", "price", "amount"],
+              required: ["startSellTimestamp", "id", "name", "price", "amount", "sold"],
               properties: {
                 startSellTimestamp: {
                   fieldNumber: 1,
@@ -114,7 +108,7 @@ const eventSchema = {
           },
           resellData: {
             type: "object",
-            fieldNumber: 6,
+            fieldNumber: 5,
             required: ["allowed", "maximumResellPercentage", "resellOrganiserFee"],
             properties: {
               allowed: {
@@ -139,16 +133,15 @@ const eventSchema = {
 
 const CHAIN_STATE_EVENTS = "events:registeredEvents";
 
-const createEvent = ({ownerAddress, nonce, organization, assets}) => {
+const createEvent = ({nonce, organizationId, assets}) => {
   const nonceBuffer = Buffer.alloc(8);
   nonceBuffer.writeBigInt64LE(nonce);
-  const seed = Buffer.concat([ownerAddress, organization, nonceBuffer]);
+  const seed = Buffer.concat([organizationId, nonceBuffer]);
   const id = cryptography.hash(seed);
 
   return {
     id,
-    ownerAddress,
-    organization,
+    organizationId,
     ...assets,
   };
 };
@@ -173,7 +166,11 @@ const getAllEvents = async stateStore => {
 const getEvent = async ({params, stateStore}) => {
   const { id } = params;
   const events = await getAllEvents(stateStore);
-  return events.find(e => e.id === id);
+  return events.find(e => e.id.toString('hex') === id);
+}
+
+const getEvents = async ({stateStore}) => {
+  return await getAllEvents(stateStore);
 }
 
 const cancelEvent = async ({params, stateStore}) => {
@@ -195,16 +192,16 @@ const ticketPrice = async ({params, stateStore}) => {
     registeredEventsBuffer
   );
 
-  const eventIndex = registeredEvents.findIndex(e => e.id === eventId);
+  const eventIndex = registeredEvents.events.findIndex(e => e.id.toString('hex') === eventId);
   if (eventIndex === -1) {
     throw new Error('Event not found');
   }
-  const typeIndex = eventIndex.ticketData.findIndex(t => t.id === typeId);
+  const typeIndex = registeredEvents.events[eventIndex].ticketData.findIndex(t => t.id === typeId);
   if (typeIndex === -1) {
     throw new Error('Ticket type not found');
   }
 
-  return registeredEvents[eventIndex].ticketData[typeIndex].price;
+  return registeredEvents.events[eventIndex].ticketData[typeIndex].price;
 }
 
 const availableTickets = async ({params, stateStore}) => {
@@ -221,17 +218,17 @@ const availableTickets = async ({params, stateStore}) => {
     eventSchema,
     registeredEventsBuffer
   );
-
-  const eventIndex = registeredEvents.findIndex(e => e.id === eventId);
+  console.log(registeredEvents, eventId, new Buffer(eventId))
+  const eventIndex = registeredEvents.events.findIndex(e => e.id.toString('hex') === eventId);
   if (eventIndex === -1) {
     throw new Error('Event not found');
   }
-  const typeIndex = eventIndex.ticketData.findIndex(t => t.id === typeId);
+  const typeIndex = registeredEvents.events[eventIndex].ticketData.findIndex(t => t.id === typeId);
   if (typeIndex === -1) {
     throw new Error('Ticket type not found');
   }
 
-  return registeredEvents[eventIndex].ticketData[typeIndex].amount - registeredEvents[eventIndex].ticketData[typeIndex].sold;
+  return registeredEvents.events[eventIndex].ticketData[typeIndex].amount - registeredEvents.events[eventIndex].ticketData[typeIndex].sold;
 }
 
 const soldTicket = async ({params, stateStore}) => {
@@ -249,17 +246,17 @@ const soldTicket = async ({params, stateStore}) => {
     registeredEventsBuffer
   );
 
-  const eventIndex = registeredEvents.findIndex(e => e.id === eventId);
+  const eventIndex = registeredEvents.events.findIndex(e =>e.id.toString('hex') === eventId);
   if (eventIndex === -1) {
     throw new Error('Event not found');
   }
-  const typeIndex = eventIndex.ticketData.findIndex(t => t.id === typeId);
+  const typeIndex = registeredEvents.events[eventIndex].ticketData.findIndex(t => t.id === typeId);
   if (typeIndex === -1) {
     throw new Error('Ticket type not found');
   }
 
-  registeredEvents[eventIndex].ticketData[typeIndex].sold++;
-  await setAllEvents(stateStore, registeredEvents);
+  registeredEvents.events[eventIndex].ticketData[typeIndex].sold++;
+  await setAllEvents(stateStore, registeredEvents.events);
 }
 
 const getAllEventsAsJSON = async dataAccess => {
@@ -282,9 +279,11 @@ const getAllEventsAsJSON = async dataAccess => {
 }
 
 const setAllEvents = async (stateStore, events) => {
+  console.log(events)
   const registeredEvents = {
     events: events.sort((a, b) => a.id.compare(b.id))
   };
+  console.log(registeredEvents)
 
   await stateStore.chain.set(
     CHAIN_STATE_EVENTS,
@@ -299,6 +298,7 @@ export {
   getAllEventsAsJSON,
   createEvent,
   getEvent,
+  getEvents,
   cancelEvent,
   soldTicket,
   availableTickets,

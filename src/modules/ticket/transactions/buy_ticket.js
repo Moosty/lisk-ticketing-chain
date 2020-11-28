@@ -10,7 +10,7 @@ export class BuyTicket extends BaseAsset {
     required: ["eventId", "typeId", "value"],
     properties: {
       eventId: {
-        dataType: "bytes",
+        dataType: "string",
         fieldNumber: 1,
       },
       typeId: {
@@ -54,7 +54,6 @@ export class BuyTicket extends BaseAsset {
     if (ticketPrice !== asset.value) {
       throw new Error("Wrong ticket price");
     }
-
     const senderBalance = await reducerHandler.invoke("token:getBalance", {
       address: senderAddress,
     });
@@ -79,14 +78,16 @@ export class BuyTicket extends BaseAsset {
     senderAccount.ticket.tickets.push(ticket.id);
 
     await stateStore.account.set(senderAddress, senderAccount);
-
+    const organization = await reducerHandler.invoke("organizer:getOrganizationById", {
+      id: event.organizationId
+    });
     await reducerHandler.invoke("token:debit", {
       address: senderAddress,
       amount: asset.value,
     });
 
     await reducerHandler.invoke("token:credit", {
-      address: event.ownerAddress,
+      address: organization.ownerAddress,
       amount: asset.value,
     })
 

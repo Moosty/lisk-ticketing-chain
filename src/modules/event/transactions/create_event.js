@@ -15,8 +15,8 @@ export class CreateEvent extends BaseAsset {
     properties: {
       eventData: {
         type: "object",
-        fieldNumber: 4,
-        required: ["title", "status", "location", "date", "duration"],
+        fieldNumber: 1,
+        required: ["title", "location", "date", "duration"],
         properties: {
           title: {
             dataType: "string",
@@ -24,41 +24,35 @@ export class CreateEvent extends BaseAsset {
             minLength: 10,
             maxLength: 100,
           },
-          status: {
-            dataType: "string",
-            fieldNumber: 2,
-            minLength: 10,
-            maxLength: 30,
-          },
           location: {
             dataType: "string",
-            fieldNumber: 3,
+            fieldNumber: 2,
             minLength: 3,
             maxLength: 50,
           },
           date: {
             dataType: "uint64",
-            fieldNumber: 4,
+            fieldNumber: 3,
           },
           duration: {
             dataType: "uint32",
-            fieldNumber: 5
+            fieldNumber: 4
           },
           site: {
             dataType: "string",
-            fieldNumber: 6,
+            fieldNumber: 5,
             minLength: 0,
             maxLength: 200,
           },
           image: {
             dataType: "string",
-            fieldNumber: 7,
+            fieldNumber: 6,
             minLength: 0,
             maxLength: 255,
           },
           category: {
             dataType: "uint32",
-            fieldNumber: 8,
+            fieldNumber: 7,
           },
         },
       },
@@ -66,7 +60,7 @@ export class CreateEvent extends BaseAsset {
         type: "array",
         minItems: 1,
         maxItems: 20,
-        fieldNumber: 5,
+        fieldNumber: 2,
         items: {
           type: "object",
           required: ["startSellTimestamp", "id", "name", "price", "amount"],
@@ -103,7 +97,7 @@ export class CreateEvent extends BaseAsset {
       },
       resellData: {
         type: "object",
-        fieldNumber: 6,
+        fieldNumber: 3,
         required: ["allowed", "maximumResellPercentage", "resellOrganiserFee"],
         properties: {
           allowed: {
@@ -123,8 +117,6 @@ export class CreateEvent extends BaseAsset {
     }
   };
 
-  // todo: validate event assets
-
   apply = async ({ asset, stateStore, reducerHandler, transaction }) => {
     const senderAddress = transaction.senderAddress;
     const senderAccount = await stateStore.account.getOrDefault(senderAddress);
@@ -137,10 +129,15 @@ export class CreateEvent extends BaseAsset {
 
     // Create event
     const event = createEvent({
-      ownerAddress: senderAddress,
       nonce: transaction.nonce,
-      organization: organization,
-      assets: asset,
+      organizationId: organization,
+      assets: {
+        ...asset,
+        eventData: {
+          ...asset.eventData,
+          status: 0,
+        },
+      },
     });
 
     // Add event to senderAccount

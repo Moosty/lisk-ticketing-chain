@@ -1,5 +1,5 @@
 import { BaseModule } from 'lisk-sdk';
-import { availableTickets, cancelEvent, getAllEventsAsJSON, getEvent, soldTicket, ticketPrice } from './event_assets';
+import { availableTickets, cancelEvent, getAllEventsAsJSON, getEvent, getEvents, soldTicket, ticketPrice } from './event_assets';
 import { CreateEvent, CancelEvent } from "./transactions";
 
 export class EventModule extends BaseModule {
@@ -12,7 +12,7 @@ export class EventModule extends BaseModule {
     required: ["events"],
     properties: {
       events: {
-        dataType: "array",
+        type: "array",
         fieldNumber: 1,
         items: {
           dataType: "bytes",
@@ -30,6 +30,7 @@ export class EventModule extends BaseModule {
 
   reducers = {
     getEvent: async (params, stateStore) => getEvent({params, stateStore}),
+    getEvents: async (params, stateStore) => getEvents({params, stateStore}),
     cancelEvent: async (params, stateStore) => cancelEvent({params, stateStore}),
     soldTicket: async (params, stateStore) => soldTicket({params, stateStore}),
     availableTickets: async (params, stateStore) => availableTickets({params, stateStore}),

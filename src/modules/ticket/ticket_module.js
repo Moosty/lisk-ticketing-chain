@@ -6,14 +6,14 @@ import { getAllMarketTicketsAsJSON } from "./marketplace_assets";
 export class TicketModule extends BaseModule {
   name = "ticket";
   id = 1200;
-  transactionAssets = [ new BuyMarketTicket(), new BuyTicket(), new ScanTicket(), new SellTicket(), new TransferTicket(), ];
+  transactionAssets = [ new BuyTicket(), new ScanTicket(), new SellTicket(), new TransferTicket(), new BuyMarketTicket(), ];
 
   accountSchema = {
     type: "object",
     required: ["tickets"],
     properties: {
-      myTickets: {
-        dataType: "array",
+      tickets: {
+        type: "array",
         fieldNumber: 1,
         items: {
           dataType: "bytes",

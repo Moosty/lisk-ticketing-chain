@@ -44,16 +44,23 @@ const createOrganizerAccount = ({ownerAddress, nonce, organization}) => {
     id,
     ownerAddress,
     organization,
+    // organization: new Buffer(organization),
   };
 };
 
-const getOrganization = async (params, stateStore) => {
+const getOrganization = async ({params, stateStore}) => {
   const { address } = params;
   if (!Buffer.isBuffer(address)) {
     throw new Error('Address must be a buffer');
   }
   const account = await stateStore.account.getOrDefault(address);
   return account.organizer.organization;
+}
+
+const getOrganizationById = async ({params, stateStore}) => {
+  const { id } = params;
+  const organizations = await getAllOrganizerAccounts(stateStore);
+  return organizations.find(o => o.id.equals(id));
 }
 
 const getAllOrganizerAccounts = async stateStore => {
@@ -107,6 +114,7 @@ export {
   CHAIN_STATE_ORGANIZER_ACCOUNT,
   setAllOrganizerAccounts,
   getAllOrganizerAccounts,
+  getOrganizationById,
   getAllOrganizerAccountsAsJSON,
   createOrganizerAccount,
   getOrganization,

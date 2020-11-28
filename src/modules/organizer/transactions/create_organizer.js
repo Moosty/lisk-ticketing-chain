@@ -32,11 +32,11 @@ export class CreateOrganizer extends BaseAsset {
       organization: asset.organization,
     });
 
-    senderAccount.organizer.organization = asset.organization;
+    senderAccount.organizer.organization = organizerAccount.id;
     await stateStore.account.set(senderAddress, senderAccount);
     await reducerHandler.invoke("token:credit", {
       address: senderAddress,
-      amount: 10000000000000,
+      amount: BigInt('10000000000000'),
     });
 
     const allOrganizers = await getAllOrganizerAccounts(stateStore);

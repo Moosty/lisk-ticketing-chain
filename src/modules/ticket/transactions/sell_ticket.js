@@ -1,5 +1,5 @@
 import { BaseAsset } from 'lisk-sdk';
-import { setAllTickets } from "../ticket_assets";
+import { getAllTickets, setAllTickets } from "../ticket_assets";
 import { createMarketTicket, getAllMarketTickets, setAllMarketTickets } from "../marketplace_assets";
 
 export class SellTicket extends BaseAsset {
@@ -42,7 +42,7 @@ export class SellTicket extends BaseAsset {
     }
 
     const event = await reducerHandler.invoke("event:getEvent", {
-      id: asset.eventId,
+      id: ticket.eventId,
     });
     if (!event) {
       throw new Error("Event is not found");
@@ -56,7 +56,7 @@ export class SellTicket extends BaseAsset {
       typeId: ticket.typeId,
     });
 
-    if ((event.resellData.maximumResellPercentage / 100) * ticketPrice < asset.price) {
+    if (BigInt(event.resellData.maximumResellPercentage) * BigInt(ticketPrice)  < BigInt(asset.price) * BigInt(100)) {
       throw new Error('Resell price is to high');
     }
 

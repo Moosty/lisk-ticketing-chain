@@ -17,7 +17,7 @@ export class BuyMarketTicket extends BaseAsset {
     }
   };
 
-  apply = async ({asset, stateStore}) => {
+  apply = async ({asset, stateStore, transaction, reducerHandler}) => {
     const senderAddress = transaction.senderAddress;
     const senderAccount = await stateStore.account.getOrDefault(senderAddress);
     const allMarketTickets = await getAllMarketTickets(stateStore);
@@ -55,26 +55,31 @@ export class BuyMarketTicket extends BaseAsset {
       address: senderAddress,
       amount: marketTicket.price,
     });
-    const resellFee = (resellOrganiserFee / 100) * marketTicket.price;
+
+    const resellFee = (BigInt(event.resellData.resellOrganiserFee) * BigInt(marketTicket.price)) / BigInt(100);
     await reducerHandler.invoke("token:credit", {
       address: ownerAccount.address,
       amount: marketTicket.price - resellFee,
     });
+
+    const organization = await reducerHandler.invoke("organizer:getOrganizationById", {
+      id: event.organizationId
+    });
     await reducerHandler.invoke("token:credit", {
-      address: event.ownerAddress,
+      address: organization.ownerAddress,
       amount: resellFee,
     });
 
     ownerAccount.ticket.tickets.splice(ticketIndex, 1);
-    await stateStore.account.set(ticket.ownerAddress, ownerAccount);
+    await stateStore.account.set(ownerAccount.address, ownerAccount);
 
-    senderAccount.ticket.tickets.push(asset.ticketId);
+    senderAccount.ticket.tickets.push(ticket.id);
     await stateStore.account.set(senderAddress, senderAccount);
 
     ticket.ownerAddress = senderAddress;
     ticket.status = 0;
     ticket.value = marketTicket.price - resellFee;
-    allTickets[ticketStoreIndex] = ticket;
+    allTickets[ticketIndex] = ticket;
     await setAllTickets(stateStore, allTickets);
 
     allMarketTickets.splice(marketTicketIndex, 1);

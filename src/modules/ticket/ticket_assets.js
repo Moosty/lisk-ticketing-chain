@@ -21,11 +21,11 @@ const ticketSchema = {
             fieldNumber: 2,
           },
           eventId: {
-            dataType: "bytes",
+            dataType: "string",
             fieldNumber: 3,
           },
           typeId: {
-            dataType: "bytes",
+            dataType: "uint32",
             fieldNumber: 4,
           },
           value: {
@@ -55,7 +55,7 @@ const CHAIN_STATE_TICKETS = "tickets:boughtTickets";
 const createTicket = ({ownerAddress, nonce, eventId, typeId, value}) => {
   const nonceBuffer = Buffer.alloc(8);
   nonceBuffer.writeBigInt64LE(nonce);
-  const seed = Buffer.concat([ownerAddress, eventId, typeId, nonceBuffer]);
+  const seed = Buffer.concat([ownerAddress, new Buffer(eventId), new Buffer(typeId), nonceBuffer]);
   const id = cryptography.hash(seed);
 
   return {

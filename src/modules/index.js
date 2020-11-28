@@ -1,6 +1,14 @@
-import { EventModule, EventAsset } from "./event";
-import { OrganizerModule, OrganizerAsset } from "./organizer";
-import { TicketModule, TicketAsset } from "./ticket";
+import { CancelEvent, CreateEvent, EventAsset, EventModule } from "./event";
+import { CreateOrganizer, OrganizerAsset, OrganizerModule } from "./organizer";
+import {
+  BuyMarketTicket,
+  BuyTicket,
+  ScanTicket,
+  SellTicket,
+  TicketAsset,
+  TicketModule,
+  TransferTicket
+} from "./ticket";
 
 export {
   EventAsset,
@@ -9,4 +17,12 @@ export {
   OrganizerModule,
   TicketAsset,
   TicketModule,
+  CancelEvent,
+  CreateEvent,
+  CreateOrganizer,
+  BuyMarketTicket,
+  BuyTicket,
+  ScanTicket,
+  SellTicket,
+  TransferTicket,
 }

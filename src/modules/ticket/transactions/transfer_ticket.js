@@ -24,9 +24,7 @@ export class TransferTicket extends BaseAsset {
     const senderAddress = transaction.senderAddress;
     const senderAccount = await stateStore.account.get(senderAddress);
     const recipientAccount = await stateStore.account.get(asset.recipientAddress);
-
     const allTickets = await getAllTickets(stateStore);
-
     const ticketStoreIndex = allTickets.findIndex(t => t.id.equals(asset.ticketId));
     if (ticketStoreIndex === -1) {
       throw new Error("Ticket not found");

@@ -1,5 +1,5 @@
 import { BaseModule } from 'lisk-sdk';
-import { getAllOrganizerAccountsAsJSON } from './organizer_account';
+import { getAllOrganizerAccountsAsJSON, getOrganization, getOrganizationById } from './organizer_account';
 import { CreateOrganizer } from "./transactions";
 
 export class OrganizerModule extends BaseModule {
@@ -25,6 +25,7 @@ export class OrganizerModule extends BaseModule {
 
   reducers = {
     getOrganization: async (params, stateStore) => getOrganization({params, stateStore}),
+    getOrganizationById: async (params, stateStore) => getOrganizationById({params, stateStore}),
   }
 
   beforeTransactionApply = async ({ transaction, stateStore, reducerHandler}) => {

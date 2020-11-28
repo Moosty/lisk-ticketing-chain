@@ -1,5 +1,6 @@
 import { BaseAsset } from 'lisk-sdk';
-import { setAllTickets } from "../../ticket/ticket_assets";
+import { getAllTickets, setAllTickets } from "../../ticket/ticket_assets";
+import { setAllEvents } from "../event_assets";
 
 export class CancelEvent extends BaseAsset {
   name = "cancelEvent";
@@ -7,7 +8,7 @@ export class CancelEvent extends BaseAsset {
   schema = {
     $id: "lisk/event/cancel",
     type: "object",
-    required: ["event"],
+    required: ["id"],
     properties: {
       id: {
         dataType: "string",
@@ -15,22 +16,28 @@ export class CancelEvent extends BaseAsset {
       }
     }
   };
-
+  // todo: check valid current status
   apply = async ({asset, stateStore, reducerHandler, transaction}) => {
     const senderAddress = transaction.senderAddress;
-    const event = reducerHandler.invoke("event:getEvent", {
+    const event = await reducerHandler.invoke("event:getEvent", {
       id: asset.id,
     });
     if (!event) {
       throw new Error('Event not found');
     }
-    if (event.ownerAddress !== senderAddress) {
+
+    const organization = await reducerHandler.invoke("organizer:getOrganization", {
+      address: senderAddress,
+    })
+
+    if (event.organizationId.toString('hex') !== organization.toString('hex')) {
       throw new Error('Only owner can cancel event');
     }
+
     const allTickets = await getAllTickets(stateStore);
     const allEventTickets = allTickets.filter(t => t.eventId === asset.id);
     const totalDebt = allEventTickets.reduce((sum, t) =>
-      sum + event.ticketData.find(tt => tt.id.equals(t.typeId)).price,
+      sum + event.ticketData.find(tt => tt.id === t.typeId).price,
       BigInt(0)
     );
     const senderBalance = await reducerHandler.invoke("token:getBalance", {
@@ -58,5 +65,10 @@ export class CancelEvent extends BaseAsset {
       allTickets[index].status = 3;
     }
     await setAllTickets(stateStore, allTickets);
+
+    const allEvents = await reducerHandler.invoke("event:getEvents");
+    const eventIndex = allEvents.findIndex(e => e.id.toString('hex') === asset.id);
+    allEvents[eventIndex].eventData.status = 4;
+    await setAllEvents(stateStore, allEvents);
   }
 }
