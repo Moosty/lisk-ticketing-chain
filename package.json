@@ -4,11 +4,13 @@
   "main": "src/index.js",
   "author": "Moosty",
   "license": "MIT",
+  "private": true,
   "scripts": {
-    "start": "babel-node src/index.js"
+    "start": "babel-node src/index.js",
+    "build": "babel-node src/index.js"
   },
   "dependencies": {
-    "@moosty/lisk-sprinkler": "../lisk-sprinkler/",
+    "@moosty/lisk-sprinkler": "https://github.com/moosty/lisk-sprinkler/#v5",
     "lisk-commander": "^5.0.0-alpha.1",
     "lisk-core": "^3.0.0-beta.2.4",
     "lisk-sdk": "^5.0.0-alpha.3"
@@ -19,8 +21,11 @@
     "@babel/node": "^7.8.4",
     "@babel/plugin-proposal-class-properties": "^7.12.1",
     "@babel/preset-env": "^7.8.4",
+    "babel-loader": "^8.2.1",
     "node-fetch": "^2.6.1",
     "nodemon": "^2.0.6",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^5.4.0"
   }
 }
