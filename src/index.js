@@ -33,7 +33,7 @@ const appConfig = utils.objects.mergeDeep({}, configDevnet, {
   rootPath: './store/',
   plugins: {
     httpApi: {
-      whiteList: ["*", "127.0.0.1", "192.168.2.181", "192.168.2.150"]
+      whiteList: ["127.0.0.1"]
     }
   }
 });
