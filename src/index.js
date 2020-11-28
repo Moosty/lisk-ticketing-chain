@@ -18,9 +18,6 @@ genesisBlockDevnet.header.asset.accounts = genesisBlockDevnet.header.asset.accou
 
 const appConfig = utils.objects.mergeDeep({}, configDevnet, {
   label: 'lisk-ticketing',
-  ipc: {
-    enabled: false,
-  },
   genesisConfig: {
     communityIdentifier: 'TICKETING',
     logger: {
