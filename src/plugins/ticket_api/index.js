@@ -80,7 +80,7 @@ export class TicketAPIPlugin extends BasePlugin {
       });
 
       this._app.get("/api/ticket/:id", async (req, res) => {
-        const items = await this._channel.invoke("event:getAllTickets");
+        const items = await this._channel.invoke("ticket:getAllTickets");
         const item = items.find((i) => i.id === req.params.id);
 
         res.json({ data: item });
