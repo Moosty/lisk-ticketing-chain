@@ -1,5 +1,6 @@
 import { CancelEvent, CreateEvent, EventAsset, EventModule } from "./event";
 import { CreateOrganizer, OrganizerAsset, OrganizerModule } from "./organizer";
+import { SprinklerTransaction, SprinklerModule} from "./sprinkler";
 import {
   BuyMarketTicket,
   BuyTicket,
@@ -25,4 +26,6 @@ export {
   ScanTicket,
   SellTicket,
   TransferTicket,
+  SprinklerTransaction,
+  SprinklerModule,
 }

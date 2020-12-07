@@ -95,7 +95,7 @@ export class TicketAPIPlugin extends BasePlugin {
         res.json({ data: organizer });
       });
 
-      this._server = this._app.listen(8088, "0.0.0.0");
+      this._server = this._app.listen(5008, "0.0.0.0");
     });
   }
 

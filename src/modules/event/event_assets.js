@@ -218,7 +218,7 @@ const availableTickets = async ({params, stateStore}) => {
     eventSchema,
     registeredEventsBuffer
   );
-  console.log(registeredEvents, eventId, new Buffer(eventId))
+
   const eventIndex = registeredEvents.events.findIndex(e => e.id.toString('hex') === eventId);
   if (eventIndex === -1) {
     throw new Error('Event not found');
@@ -279,11 +279,9 @@ const getAllEventsAsJSON = async dataAccess => {
 }
 
 const setAllEvents = async (stateStore, events) => {
-  console.log(events)
   const registeredEvents = {
     events: events.sort((a, b) => a.id.compare(b.id))
   };
-  console.log(registeredEvents)
 
   await stateStore.chain.set(
     CHAIN_STATE_EVENTS,
