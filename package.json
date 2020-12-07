@@ -13,7 +13,6 @@
     "@moosty/lisk-sprinkler": "https://github.com/moosty/lisk-sprinkler/#eeacd17f55b54284dcdda23a29716e9f7b5a69d4",
     "fs-extra": "^9.0.1",
     "lisk-commander": "^5.0.0-alpha.1",
-    "lisk-core": "^3.0.0-beta.2",
     "lisk-sdk": "^5.0.0"
   },
   "devDependencies": {
